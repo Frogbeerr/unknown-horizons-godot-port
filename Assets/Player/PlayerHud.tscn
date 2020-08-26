@@ -53,7 +53,7 @@ size_flags_stretch_ratio = 1.5
 
 [node name="CityInfo" parent="MarginContainer/HBoxContainer" instance=ExtResource( 2 )]
 margin_left = 639.0
-margin_right = 885.0
+margin_right = 889.0
 size_flags_horizontal = 2
 size_flags_vertical = 0
 
@@ -72,6 +72,10 @@ margin_bottom = 770.0
 margin_top = -228.0
 margin_bottom = 62.0
 size_flags_vertical = 1
+
+[node name="HSeparator" parent="MarginContainer/HBoxContainer/ShipMenuTabWidget/WidgetDetail/Body/ShipMenu" index="2"]
+margin_top = 53.0
+margin_bottom = 57.0
 
 [editable path="MarginContainer/HBoxContainer/TabWidget"]
 

@@ -41,19 +41,19 @@ func _process(_delta: float) -> void:
 	if player.camera == null:
 		player.camera = self # bind player to this camera
 
-	var m_pos = get_viewport().get_mouse_position()
-	if Input.is_action_just_pressed("main_command"):
-		move_selected_units(m_pos)
-	if Input.is_action_just_pressed("alt_command"):
-		_selection_box.start_sel_pos = m_pos
-		start_sel_pos = m_pos
-	if Input.is_action_pressed("alt_command"):
-		_selection_box.m_pos = m_pos
-		_selection_box.is_visible = true
-	else:
-		_selection_box.is_visible = false
-	if Input.is_action_just_released("alt_command"):
-		select_units(m_pos)
+#	var m_pos = get_viewport().get_mouse_position()
+#	if Input.is_action_just_pressed("main_command"):
+#		move_selected_units(m_pos)
+#	if Input.is_action_just_pressed("alt_command"):
+#		_selection_box.start_sel_pos = m_pos
+#		start_sel_pos = m_pos
+#	if Input.is_action_pressed("alt_command"):
+#		_selection_box.m_pos = m_pos
+#		_selection_box.is_visible = true
+#	else:
+#		_selection_box.is_visible = false
+#	if Input.is_action_just_released("alt_command"):
+#		select_units(m_pos)
 
 # Unit selection.
 func select_units(m_pos: Vector2) -> void:
@@ -122,3 +122,11 @@ func raycast_from_mouse(m_pos: Vector2, collision_mask: int) -> Dictionary:
 	var ray_end = ray_start + _camera.project_ray_normal(m_pos) * RAY_LENGTH
 	var space_state = get_world().direct_space_state
 	return space_state.intersect_ray(ray_start, ray_end, [], collision_mask)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action("main_command"):
+		var m_pos := get_viewport().get_mouse_position()
+		var target := raycast_from_mouse(m_pos, 1)
+		if target:
+			var target_object := (target["collider"] as Node).get_parent()
+			var target_pos := (target["position"] as Vector3)
