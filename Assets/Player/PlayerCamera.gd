@@ -1,4 +1,5 @@
 extends Spatial
+class_name PlayerCamera
 
 const RAY_LENGTH = 1000
 
@@ -12,18 +13,15 @@ var start_sel_pos = Vector2()
 
 var player = null
 
+# Variables for the interaction system
+export (NodePath) var default_interaction_context
+var active_context : InteractionContext
+
 # HACK: Prevent triggering unit selection due to preceeding menu click
 var first_frame = true
 
-#func _ready() -> void:
-#	get_tree().call_group(
-#		"billboard",
-#		"update_offset",
-#		_rotation_y.rotation_degrees.y)
-#	get_tree().call_group(
-#		"billboard",
-#		"recalculate_directions",
-#		_rotation_y.rotation_degrees.y)
+func _ready():
+	abort_context()
 
 func assign_to_player() -> Control:
 	return Global.Game.player if Global.Game != null and Global.Game.player else null
@@ -123,10 +121,31 @@ func raycast_from_mouse(m_pos: Vector2, collision_mask: int) -> Dictionary:
 	var space_state = get_world().direct_space_state
 	return space_state.intersect_ray(ray_start, ray_end, [], collision_mask)
 
+
+### INTERACTION SYSTEM ###
+func switch_context(new_context : InteractionContext) -> void:
+	print_debug("Switching to new context: %s" % new_context.name)
+	if active_context:
+		active_context._on_exit()
+	active_context = new_context
+	if not active_context.is_connected("abort_context", self, "abort_context"):
+		active_context.connect("abort_context", self, "abort_context")
+	if not active_context.is_connected("switch_context", self, "switch_context"):
+		active_context.connect("switch_context", self, "switch_context")
+	active_context._on_enter()
+
+func abort_context() -> void:
+	switch_context(get_node(default_interaction_context))
+
+
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action("main_command"):
-		var m_pos := get_viewport().get_mouse_position()
-		var target := raycast_from_mouse(m_pos, 1)
-		if target:
-			var target_object := (target["collider"] as Node).get_parent()
-			var target_pos := (target["position"] as Vector3)
+	if not event is InputEventMouseMotion:
+		print_debug("Interaction System: %s" % event.as_text())
+	var m_pos := get_viewport().get_mouse_position()
+	var target := raycast_from_mouse(m_pos, 1)
+	var target_object : Node
+	var target_pos : Vector3
+	if target:
+		target_object = (target["collider"] as Node).get_parent()
+		target_pos = (target["position"] as Vector3)
+	active_context.interact(event, target_object, target_pos)

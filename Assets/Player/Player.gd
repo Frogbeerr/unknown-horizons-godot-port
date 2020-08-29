@@ -15,6 +15,10 @@ func _ready() -> void:
 		"I'm {0} in faction {1} ({2}).".format(
 				[Config.player_name, faction, Global.FACTIONS[faction]])
 		)
+	mouse_filter = Control.MOUSE_FILTER_PASS
+	print_debug(
+		"My Mouse filter ist %s" % mouse_filter
+	)
 
 func _on_Game_notification(message_type, message_text) -> void:
 	if camera != null:
